@@ -16,29 +16,179 @@
 #define BACKLOG 10
 #define BUFFER 100
 
+// void new_aircraft_carrier(Map *m)
+// {
+//     int orientation, head[2];
+
+//     system("clear");
+
+//     printf("New aircraft carrier\n");
+//     printf("--------------------\n\n");
+
+//     show_ships(m);
+//     printf("\n");
+//     show_map(m);
+
+//     printf("\n");
+//     printf("Choose orientation\n");
+//     printf("1) Vertical\n");
+//     printf("2) Horizontal\n");
+//     printf("- ");
+//     scanf("%i", &orientation);
+//     printf("\n");
+
+//     printf("Choose head position\n");
+//     printf("x: ");
+//     scanf("%i", &head[1]);
+//     printf("y: ");
+//     scanf("%i", &head[0]);
+//     printf("\n");
+
+//     insert_ship(m, AIRCRAFT_CARRIER, head, orientation);
+// }
+
+// void new_battleship(Map *m)
+// {
+//     int orientation, head[2];
+
+//     system("clear");
+
+//     printf("New battleship\n");
+//     printf("--------------\n\n");
+
+//     show_ships(m);
+//     printf("\n");
+//     show_map(m);
+
+//     printf("\n");
+//     printf("Choose orientation\n");
+//     printf("1) Vertical\n");
+//     printf("2) Horizontal\n");
+//     printf("- ");
+//     scanf("%i", &orientation);
+//     printf("\n");
+
+//     printf("Choose head position\n");
+//     printf("x: ");
+//     scanf("%i", &head[1]);
+//     printf("y: ");
+//     scanf("%i", &head[0]);
+//     printf("\n");
+
+//     insert_ship(m, BATTLESHIP, head, orientation);
+// }
+
+// void new_submarine(Map *m)
+// {
+//     int orientation, head[2];
+
+//     system("clear");
+
+//     printf("New submarine\n");
+//     printf("-------------\n\n");
+
+//     show_ships(m);
+//     printf("\n");
+//     show_map(m);
+
+//     printf("\n");
+//     printf("Choose orientation\n");
+//     printf("1) Vertical\n");
+//     printf("2) Horizontal\n");
+//     printf("- ");
+//     scanf("%i", &orientation);
+//     printf("\n");
+
+//     printf("Choose head position\n");
+//     printf("x: ");
+//     scanf("%i", &head[1]);
+//     printf("y: ");
+//     scanf("%i", &head[0]);
+//     printf("\n");
+
+//     insert_ship(m, SUBMARINE, head, orientation);
+// }
+
+// void new_patrol_boat(Map *m)
+// {
+//     int orientation, head[2];
+
+//     system("clear");
+
+//     printf("New patrol boat\n");
+//     printf("---------------\n\n");
+
+//     show_ships(m);
+//     printf("\n");
+//     show_map(m);
+
+//     printf("\n");
+//     printf("Choose orientation\n");
+//     printf("1) Vertical\n");
+//     printf("2) Horizontal\n");
+//     printf("- ");
+//     scanf("%i", &orientation);
+//     printf("\n");
+
+//     printf("Choose head position\n");
+//     printf("x: ");
+//     scanf("%i", &head[1]);
+//     printf("y: ");
+//     scanf("%i", &head[0]);
+//     printf("\n");
+
+//     insert_ship(m, PATROL_BOAT, head, orientation);
+// }
+
+// void insert_all_ships(Map *m)
+// {
+//     new_aircraft_carrier(m);
+//     new_battleship(m);
+//     new_submarine(m);
+//     new_submarine(m);
+//     new_patrol_boat(m);
+//     new_patrol_boat(m);
+// }
+
 int main()
 {
 
-    Map *m = init_map_matrix(10, 10);
+    int i, ship, x, y, orientation;
+    Map *m = init_map_matrix(12, 20);
 
-    m->aircraft_carrier = 2;
-    m->battleship = 1;
-    m->submarine = 2;
-    m->destroyer = 2;
-    m->patrol_boat = 3;
 
     welcome();
-    show_ships();
-    int head[2] = {1,2};
-    int head2[2] = {0,3};
-    insert_ship(m, 5, head, 2);
-    insert_ship(m, 5, head2, 1);
-    show_map(m);
+    // insert_all_ships(m);
+    // new_aircraft_carrier(m);
+    while((i = check_used_ships(m)) > 0)
+    {
+        show_map(m);
+        show_ships(m);
+
+        printf("You still have %i ship(s) to organize\n", i);
+        printf("Choose one to put in the map: ");
+        scanf("%i", &ship);
+        printf("Ship head position\n");
+        printf("x: ");
+        scanf("%i", &x);
+        printf("y: ");
+        scanf("%i", &y);
+        printf("Orientation (1-vert/2-hori): ");
+        scanf("%i", &orientation);
+        insert_ship(m, ship, x, y, orientation);
+
+        system("clear");
+    }
 
 
 
-    // /* Socket setup
-    //  */
+    // int head[2] = {1,2};
+    // insert_ship(m, 5, head2, 1);
+
+
+
+    /* Socket setup
+     */
 
     // int s; // Socket
     // int status; // Errors
@@ -111,7 +261,6 @@ int main()
 
     // printf("ok\n");
 
-    // countdown();
 
     // printf("Server is ready... Waiting for client... \n");
 
@@ -132,11 +281,13 @@ int main()
     //         exit(1);
     //     }
 
+    //     welcome();
+    //     show_map(m);
+
     //     ipaddr = &client_addr.sin_addr;
 
     //     inet_ntop(server_info->ai_family, ipaddr, ipstr, sizeof(ipstr));
 
-    //     countdown();
 
     //     // printf("Conexão estabelecida com: %s\n", ipstr);
 
