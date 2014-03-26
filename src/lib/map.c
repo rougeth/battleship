@@ -10,7 +10,7 @@ void show_map(Map *m)
     int i, j;
 
     // Print first line
-    printf(" x\\y ");
+    printf(" y\\x ");
     for (i=0; i<m->height; i++)
         if (i<10)
             printf("%i  ", i);
