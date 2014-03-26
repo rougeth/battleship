@@ -1,5 +1,5 @@
 HEADERS = lib/util.h lib/map.h lib/ship.h
-OBJECTS = lib/ship.o lib/map.o lib/util.o server.o
+OBJECTS = lib/map.o lib/ship.o lib/util.o server.o
 
 default: program
 

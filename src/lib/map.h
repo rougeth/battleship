@@ -9,11 +9,6 @@
 #define WATER 0
 #define MISS 1
 #define HIT 2
-
-#define SHIP_HEAD_UP 31
-#define SHIP_HEAD_RIGHT 32
-#define SHIP_HEAD_BOTTOM 33
-#define SHIP_HEAD_LEFT 32
 #define SHIP 3
 
 // Symbols
@@ -28,17 +23,18 @@ typedef struct map
     int height;
     int **map;
 
-    int aircraft_carrier;
-    int battleship;
-    int submarine;
-    int destroyer;
-    int patrol_boat;
+    // ships[0] -> aircraft carrier
+    // ships[1] -> battleship
+    // ships[2] -> submarine
+    // ships[3] -> patrol boat
+
+    int ships[4];
 } Map;
 
-void show_map(Map *m);
 
+// Map funcionts
+void show_map(Map *m);
 Map *init_map_matrix(int width, int height);
 
-int insert_ship(Map *m, int ship, int *head, int way);
 
 #endif
