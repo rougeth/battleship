@@ -19,6 +19,7 @@
 
 typedef struct map
 {
+
     int width;
     int height;
     int **map;

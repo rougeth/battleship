@@ -9,6 +9,8 @@ void show_map(Map *m)
 {
     int i, j;
 
+    printf("Map:\n");
+
     // Print first line
     printf(" y\\x ");
     for (i=0; i<m->height; i++)
