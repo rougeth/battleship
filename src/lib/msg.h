@@ -1,6 +1,8 @@
 #ifndef _MSG_H_
 #define _MSG_H_
 
+#define OK 2
+
 
 typedef struct introducion_message {
 
@@ -19,7 +21,11 @@ typedef struct attack_message {
 typedef struct response_message {
 
     int type;
-    char response;
+    /* 0 = MISS
+     * 1 = HIT
+     * 2 = OK
+     */
+    int response;
 
 } response_message;
 

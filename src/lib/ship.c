@@ -5,6 +5,22 @@
 
 #include "ship.h"
 
+int attack_ship(Map *m, int x, int y)
+{
+    if (x > m->width || x < 0 || y > m->width || y < 0)
+        return -1;
+
+    if (m->map[y][x] == SHIP)
+    {
+        m->map[y][x] = HIT;
+        return 1;
+    }
+    else {
+        m->map[y][x] = MISS;
+        return 0;
+    }
+}
+
 int insert_ship(Map *m, int ship, int x, int y, int orientation)
 {
     int i, size;

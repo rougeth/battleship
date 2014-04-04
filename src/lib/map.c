@@ -4,12 +4,9 @@
 #include "map.h"
 #include "util.h"
 
-
 void show_map(Map *m)
 {
     int i, j;
-
-    printf("Map:\n");
 
     // Print first line
     printf(" y\\x ");

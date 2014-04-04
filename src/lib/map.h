@@ -30,6 +30,7 @@ typedef struct map
     // ships[3] -> patrol boat
 
     int ships[4];
+    int total;
 } Map;
 
 

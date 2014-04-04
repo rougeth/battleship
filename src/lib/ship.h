@@ -15,9 +15,9 @@
 #define VERTICAL 1
 #define HORIZONTAL 2
 
+int attack_ship(Map *m, int x, int y);
 int insert_ship(Map *m, int ship, int x, int y, int orientation);
 void show_ships(Map *m);
 
 int check_used_ships(Map *m);
-
 #endif
