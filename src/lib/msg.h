@@ -4,30 +4,29 @@
 #define OK 2
 
 
-typedef struct introducion_message {
-
-    int type;
+typedef struct introducion_message
+{
     char nickname[30];
 
 } introducion_message;
 
-typedef struct attack_message {
-
-    int type;
+typedef struct attack_message
+{
     int x, y;
 
 } attack_message;
 
-typedef struct response_message {
-
+typedef struct status_message
+{
     int type;
     /* 0 = MISS
      * 1 = HIT
      * 2 = OK
+     * 3 = FINISH
      */
     int response;
 
-} response_message;
+} status_message;
 
 
 #endif

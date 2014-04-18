@@ -1,6 +1,6 @@
-HEADERS = lib/map.h lib/ship.h lib/socket.h lib/util.h
-SERVER_OBJECTS = lib/map.o lib/ship.o lib/socket.o lib/util.o server.o
-CLIENT_OBJECTS = lib/map.o lib/ship.o lib/socket.o lib/util.o client.o
+HEADERS = lib/map.h lib/ship.h lib/socket.h lib/util.h lib/config.h
+SERVER_OBJECTS = lib/map.o lib/ship.o lib/socket.o lib/util.o lib/config.o server.o
+CLIENT_OBJECTS = lib/map.o lib/ship.o lib/socket.o lib/util.o lib/config.o client.o
 
 default: main clean
 
@@ -12,4 +12,4 @@ main: $(SERVER_OBJECTS) $(CLIENT_OBJECTS)
 	gcc $(CLIENT_OBJECTS) -o client
 
 clean:
-	-rm -f $(OBJECTS)
+	rm -f $(SERVER_OBJECTS) $(CLIENT_OBJECTS)

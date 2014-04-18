@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <strings.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -13,17 +13,18 @@
 #include "lib/ship.h"
 #include "lib/socket.h"
 #include "lib/util.h"
-
-char opponent_nickname[30];
+#include "lib/config.h"
 
 int main(int argc, char *argv[])
 {
-    Map *m = init_map_matrix(10, 10);
-
+    // Map settings
+    Map *m = init_map_matrix(MAP_WIDTH, MAP_HEIGH);
+    Map *client_map = init_map_matrix(MAP_WIDTH, MAP_HEIGH);
     int i, ship, x, y, orientation; // ship insertion
-    char my_nickname[30];
+    char my_nickname[30], opponent_nickname[30];
 
-    // Socket stuff
+    // Socket settings
+    char port[5];
     int server_socket, client_socket;
     struct addrinfo hints, *server_info;
     struct sockaddr_storage client_addr;
@@ -31,102 +32,43 @@ int main(int argc, char *argv[])
     char client_ip[INET6_ADDRSTRLEN];
     int status;
 
-    // Messages
+    // Messages settings
     int end_game;
+    status_message *s_msg;
     introducion_message *i_msg;
     attack_message *a_msg;
-    response_message *r_msg;
 
-    /* Welcome screen
-     */
+    // ------------------------------------------------------------------------
+
+    if (argc != 2) {
+        fprintf(stderr,"usage: server port\n");
+        exit(1);
+    }
+
+    // ------------------------------------------------------------------------
+
+    // Welcome message
     welcome();
 
-    // just for test!
-    insert_ship(m, 0, 0, 0, 2);
-    insert_ship(m, 1, 6, 0, 2);
-    insert_ship(m, 2, 0, 2, 1);
-    insert_ship(m, 2, 0, 6, 1);
-    insert_ship(m, 3, 1, 9, 2);
-    insert_ship(m, 3, 4, 9, 2);
-
-    /* Get nickname
-     */
-    printf("Insert your nickname: ");
+    printf("Please, insert your nickname: ");
     fgets(my_nickname, 30, stdin);
     if (my_nickname[strlen(my_nickname) - 1] == '\n')
         my_nickname[strlen(my_nickname) - 1] = '\0';
 
     system("clear");
 
-    /* Insert ships until its done
-     */
-    while((i = check_used_ships(m)) > 0)
-    {
-        // Show the map and the ships
-        show_map(m);
-        show_ships(m);
+    // ------------------------------------------------------------------------
+    // Prepare socket
 
-        printf("You still have %i ship(s) to organize\n", i);
-        printf("Choose one to put in the map: ");
-        scanf("%i", &ship);
-        while(ship > 3 || ship < 0)
-        {
-            printf("Invalid choice\n");
-            printf("Please, choose another one: ");
-            scanf("%i", &ship);
-        }
-
-        printf("Ship head position\n");
-        printf("x: ");
-        scanf("%i", &x);
-        while(x > m->width || x < 0)
-        {
-            printf("Invalid choice\n");
-            printf("Please, choose another x: ");
-            scanf("%i", &x);
-        }
-
-        printf("y: ");
-        scanf("%i", &y);
-        while(y > m->height || y < 0)
-        {
-            printf("Invalid choice\n");
-            printf("Please, choose another y: ");
-            scanf("%i", &y);
-        }
-
-        printf("Orientation (1-vert/2-hori): ");
-        scanf("%i", &orientation);
-        while(orientation != 1 && orientation != 2)
-        {
-            printf("Invalid choice\n");
-            printf("Please, choose another option: ");
-            scanf("%i", &orientation);
-        }
-
-        insert_ship(m, ship, x, y, orientation);
-
-        system("clear");
-    }
-
-    show_map(m);
-
-    printf("ships ready!\n");
-
-
-    /* Connection
-     */
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
 
-    if ((status = getaddrinfo(NULL, PORT, &hints, &server_info)) != 0) {
+    if ((status = getaddrinfo(NULL, argv[1], &hints, &server_info)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
         return 1;
     }
-
-    // loop through all the results and bind to the first we can
 
     if ((server_socket = socket(server_info->ai_family,
          server_info->ai_socktype, server_info->ai_protocol)) == -1) {
@@ -151,7 +93,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    printf("Waiting for connections...\n");
+    printf("\nWaiting for opponents...\n");
 
     sin_size = sizeof client_addr;
     client_socket = accept(server_socket, (struct sockaddr *)&client_addr,
@@ -163,7 +105,6 @@ int main(int argc, char *argv[])
     inet_ntop(client_addr.ss_family,
         get_in_addr((struct sockaddr *)&client_addr),
         client_ip, sizeof client_ip);
-    printf("server: got connection from %s\n", client_ip);
 
     // ------------------------------------------------------------------------
     // Send and receive introduction message
@@ -184,21 +125,100 @@ int main(int argc, char *argv[])
         exit(1);
     }
     strcpy(opponent_nickname, i_msg->nickname);
-
     free(i_msg);
+
     system("clear");
+    printf("Opponent ready! ");
+    PRINT_YELLOW(opponent_nickname);
+    printf(" (%s)\n\n", client_ip);
+
+    // ------------------------------------------------------------------------
+    // Put the ships in the map
+
+    while((i = check_used_ships(m)) > 0)
+    {
+        // Show the map and the ships
+        show_map(m);
+        show_ships(m);
+
+        printf("You still have %i ship(s) to organize\n", i);
+        printf("Choose one to put in the map: ");
+        scanf("%i", &ship);
+        while(ship > 3 || ship < 0 || m->ships[ship] == 0)
+        {
+            printf("Invalid choice\n");
+            printf("Please, choose another one: ");
+            scanf("%i", &ship);
+        }
+
+        printf("Orientation (1-vert/2-hori): ");
+        scanf("%i", &orientation);
+        while(orientation != 1 && orientation != 2)
+        {
+            printf("Invalid choice\n");
+            printf("Please, choose another option: ");
+            scanf("%i", &orientation);
+        }
+
+        printf("Ship head position\n");
+        printf("x: ");
+        scanf("%i", &x);
+        while(x > m->width || x < 0)
+        {
+            printf("Invalid choice\n");
+            printf("Please, choose another x: ");
+            scanf("%i", &x);
+        }
+
+        printf("y: ");
+        scanf("%i", &y);
+        while(y > m->height || y < 0)
+        {
+            printf("Invalid choice\n");
+            printf("Please, choose another y: ");
+            scanf("%i", &y);
+        }
+
+        system("clear");
+        if (insert_ship(m, ship, x, y, orientation) == -1)
+            printf("\nOut of limit!\nChoose again...\n\n");
+
+    }
+
+    printf("\nShips ready!\n");
 
     // ------------------------------------------------------------------------
 
-    Map *client_map = init_map_matrix(10, 10);
+    printf("Waiting for ");
+    PRINT_YELLOW(opponent_nickname);
+    printf("\n");
+
+    s_msg = malloc(sizeof(status_message));
+    recv(client_socket, s_msg, sizeof(status_message), 0);
+
+    if (s_msg->response != 2)
+    {
+        exit(1);
+    }
+    free(s_msg);
+
+    system("clear");
+
+    // ------------------------------------------------------------------------
+    // Game starts
 
     while(1)
     {
         // Server attacks -----------------------------------------------------
-        printf("you: %s vs %s\n", my_nickname, opponent_nickname);
-        printf("Your map:\n");
+        printf("\n");
+        PRINT_CYAN(my_nickname);
+        printf(" vs ");
+        PRINT_YELLOW(opponent_nickname);
+        printf("\n");
+        printf("\n");
         show_map(m);
-        printf("%s's map:\n", opponent_nickname);
+        PRINT_YELLOW(opponent_nickname);
+        printf("'s map:\n");
         show_map(client_map);
 
         printf("Your turn to attack\n");
@@ -216,35 +236,40 @@ int main(int argc, char *argv[])
         free(a_msg);
 
         // Get response
-        r_msg = malloc(sizeof(response_message));
-        recv(client_socket, r_msg, sizeof(response_message), 0);
-        if (r_msg->response == 1)
-        {
-            client_map->map[y][x] = HIT;
-            if (client_map->total == 1)
-            {
-                end_game = 1;
-                break;
-            }
-            else
-                client_map->total--;
-        }
-        else {
-            client_map->map[y][x] = MISS;
-        }
-        free(r_msg);
+        s_msg = malloc(sizeof(status_message));
+        recv(client_socket, s_msg, sizeof(status_message), 0);
 
-        // Send ok
-        // r_msg->response = OK;
-        // send(client_socket, r_msg, sizeof(response_message), 0);
+        switch (s_msg->response)
+        {
+            case 0:
+                client_map->map[y][x] = MISS;
+                break;
+            case 1:
+                client_map->map[y][x] = HIT;
+                break;
+            case 3:
+                system("clear");
+                PRINT_BLUE("\nYOU WON!!!\n\n");
+                close(server_socket);
+                close(client_socket);
+                exit(1);
+            default:
+                break;
+        }
+        free(s_msg);
 
         system("clear");
 
         // Client attacks -----------------------------------------------------
-        printf("you: %s vs %s\n", my_nickname, opponent_nickname);
-        printf("Your map:\n");
+        printf("\n");
+        PRINT_CYAN(my_nickname);
+        printf(" vs ");
+        PRINT_YELLOW(opponent_nickname);
+        printf("\n");
+        printf("\n");
         show_map(m);
-        printf("%s's map:\n", opponent_nickname);
+        PRINT_YELLOW(opponent_nickname);
+        printf("'s map:\n");
         show_map(client_map);
 
         // Receive attack
@@ -253,45 +278,36 @@ int main(int argc, char *argv[])
         recv(client_socket, a_msg, sizeof(attack_message), 0);
 
         // Send response
-        r_msg = malloc(sizeof(response_message));
-        r_msg->type = 3;
-        r_msg->response = attack_ship(m, a_msg->x, a_msg->y);
+        s_msg = malloc(sizeof(status_message));
+        s_msg->type = 3;
 
-        if (r_msg->response == 1)
+        if (attack_ship(m, a_msg->x, a_msg->y) == 1)
         {
-            if (m->total == 1)
+            if (check_map(m) == 0)
             {
-                end_game = 0;
-                break;
+                s_msg->response = 3;
+                send(client_socket, s_msg, sizeof(status_message), 0);
+                free(a_msg);
+                free(s_msg);
+                system("clear");
+                PRINT_RED("\nYOU LOST!!!\n\n");
+                close(server_socket);
+                close(client_socket);
+                exit(1);
             }
             else
-                m->total--;
+            {
+                s_msg->response = 1;
+            }
         }
-        send(client_socket, r_msg, sizeof(response_message), 0);
+        else {
+            s_msg->response = 0;
+        }
+        send(client_socket, s_msg, sizeof(status_message), 0);
         free(a_msg);
-        free(r_msg);
-
-        // // Receive attack
-        // r_msg = malloc(sizeof(response_message));
-        // recv(client_socket, r_msg, sizeof(response_message), 0);
-        // free(r_msg);
-
-        // if (r_msg->response == OK)
-        //     continue;
-
+        free(s_msg);
         system("clear");
     }
 
-    if (!fork()) { // this is the child process
-        close(server_socket); // child doesn't need the listener
-        if (send(client_socket, "Hello, world!", 13, 0) == -1)
-            perror("send");
-        close(client_socket);
-        exit(0);
-    } else {
-        close(client_socket);  // parent doesn't need this
-    }
-
-    return 0;
-
-    }
+    system("clear");
+}

@@ -1,7 +1,7 @@
 #ifndef _SHIP_H_
 #define _SHIP_H_
 
-// Kind of ships
+
 #define AIRCRAFT_CARRIER 0
 #define BATTLESHIP 1
 #define SUBMARINE 2
@@ -15,9 +15,9 @@
 #define VERTICAL 1
 #define HORIZONTAL 2
 
+
 int attack_ship(Map *m, int x, int y);
 int insert_ship(Map *m, int ship, int x, int y, int orientation);
-void show_ships(Map *m);
-
 int check_used_ships(Map *m);
+
 #endif

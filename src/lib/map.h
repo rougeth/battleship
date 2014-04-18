@@ -1,9 +1,6 @@
 #ifndef _MAP_H_
 #define _MAP_H_
 
-// Size of the map
-#define MAP_WIDTH 10
-#define MAP_HEIGH 10
 
 // Kind of points in the map
 #define WATER 0
@@ -19,7 +16,6 @@
 
 typedef struct map
 {
-
     int width;
     int height;
     int **map;
@@ -28,15 +24,16 @@ typedef struct map
     // ships[1] -> battleship
     // ships[2] -> submarine
     // ships[3] -> patrol boat
-
     int ships[4];
     int total;
 } Map;
 
 
 // Map funcionts
-void show_map(Map *m);
-Map *init_map_matrix(int width, int height);
+int check_map(Map *);
+void show_ships(Map *);
+void show_map(Map *);
+Map *init_map_matrix(int, int);
 
 
 #endif
