@@ -6,12 +6,14 @@
 
 typedef struct introducion_message
 {
+    int type;
     char nickname[30];
 
 } introducion_message;
 
 typedef struct attack_message
 {
+    int type;
     int x, y;
 
 } attack_message;
