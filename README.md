@@ -4,4 +4,4 @@ A battleship game made with C.
 
 | Version       |
 | ------------- |
-| 0.1           |
+| 0.1.1         |
