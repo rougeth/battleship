@@ -7,12 +7,15 @@ A battleship game made with C.
 | 0.1.1         |
 
 
-## Compiling
-
-Enter `src/` folder and run `make`. Just it.
+## C Version
 
 
-## Playing
+### Compiling
+
+Enter `src/c/` folder and run `make`. Just it.
+
+
+### Playing
 
 Server: `./server [port]`
 
