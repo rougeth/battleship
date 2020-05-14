@@ -112,9 +112,9 @@ Map *init_map_matrix(int width, int height)
     }
 
     m->ships[0] = 1;
-    m->ships[1] = 1;
-    m->ships[2] = 2;
-    m->ships[3] = 2;
+    m->ships[1] = 0;
+    m->ships[2] = 0;
+    m->ships[3] = 0;
 
     return m;
 }
